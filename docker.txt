@@ -1,0 +1,217 @@
+##Docker overview
+
+Docker is an open platform for developing, shipping, and running applications. 
+Docker enables us to separate our applications from our infrastructure so we can deliver software quickly. 
+With Docker, we can manage our infrastructure in the same ways we manage our applications. By taking advantage of Docker’s methodologies for shipping, testing, and deploying code quickly, we can significantly reduce the delay between writing code and running it in production.
+
+##The Docker platform
+Docker provides the ability to package and run an application in a loosely isolated environment called a container. 
+The isolation and security allows us to run many containers simultaneously on a given host. Containers are lightweight and contain everything needed to run the application, so we do not need to rely on what is currently installed on the host. We can easily share containers while we work, and be sure that everyone we share with gets the same container that works in the same way.
+
+
+##Docker architecture
+Docker uses a client-server architecture. 
+The Docker client talks to the Docker daemon, which does the heavy lifting of building, running, and distributing  Docker containers. 
+The Docker client and daemon can run on the same system, or we can connect a Docker client to a remote Docker daemon. 
+The Docker client and daemon communicate using a REST API, over UNIX sockets or a network interface. 
+Another Docker client is Docker Compose, that lets if we work with applications consisting of a set of containers.
+
+# 1) The Docker daemon
+# 2) The Docker client
+# 3) Docker Desktop
+# 4) Docker registries
+# 5) Docker objects
+
+Explination of each......
+
+# 1) The Docker daemon
+------------>
+The Docker daemon (dockerd) listens for Docker API requests and manages Docker objects such as images, containers, networks, and volumes. A daemon can also communicate with other daemons to manage Docker services.
+
+# 2) The Docker client
+------------>
+The Docker client (docker) is the primary way that many Docker users interact with Docker. When we use commands such as docker run, the client sends these commands to dockerd, which carries them out. The docker command uses the Docker API. The Docker client can communicate with more than one daemon.
+
+# 3) Docker Desktop
+------------>
+Docker Desktop is an easy-to-install application for our Mac or Windows environment that enables us to build and share containerized applications and microservices. Docker Desktop includes the Docker daemon (dockerd), the Docker client (docker), Docker Compose, Docker Content Trust, Kubernetes, and Credential Helper. For more information
+
+# 4) Docker registries
+------------>
+A Docker registry stores Docker images. Docker Hub is a public registry that anyone can use, and Docker is configured to look for images on Docker Hub by default. we can even run our own private registry.
+
+When we use the docker pull or docker run commands, the required images are pulled from our configured registry. When we use the docker push command, our image is pushed to our configured registry.
+
+# 5) Docker objects
+----------->
+When we use Docker, we are creating and using images, containers, networks, volumes, plugins, and other objects. 
+
+
+## Images
+
+An image is a read-only template with instructions for creating a Docker container. Often, an image is based on another image, with some additional customization. For example, we may build an image which is based on the ubuntu image, but installs the Apache web server and our application, as well as the configuration details needed to make our application run.
+
+We might create our own images or we might only use those created by others and published in a registry. To build our own image, we need to create a Dockerfile with a simple syntax for defining the steps needed to create the image and run it. Each instruction in a Dockerfile creates a layer in the image. When we change the Dockerfile and rebuild the image, only those layers which have changed are rebuilt. This is part of what makes images so lightweight, small, and fast, when compared to other virtualization technologies.
+
+## Containers
+
+A container is a runnable instance of an image. we can create, start, stop, move, or delete a container using the Docker API or CLI. we can connect a container to one or more networks, attach storage to it, or even create a new image based on its current state.
+
+By default, a container is relatively well isolated from other containers and its host machine. we can control how isolated a container’s network, storage, or other underlying subsystems are from other containers or from the host machine.
+
+A container is defined by its image as well as any configuration options you provide to it when we create or start it. When a container is removed, any changes to its state that are not stored in persistent storage disappear.
+
+## Some Commands In Docker
+
+# docker run
+
+$docker run -i -t ubuntu /bin/bash
+
+When we run this command, the following happens (assuming we are using the default registry configuration):
+
+1. If we do not have the ubuntu image locally, Docker pulls it from our configured registry, as though we had run docker pull ubuntu manually.
+
+2.Docker creates a new container, as though we had run a docker container create command manually.
+
+3.Docker allocates a read-write filesystem to the container, as its final layer. This allows a running container to create or modify files and directories in its local filesystem.
+
+4.Docker creates a network interface to connect the container to the default network, since you did not specify any networking options. This includes assigning an IP address to the container. By default, containers can connect to external networks using the host machine’s network connection.
+
+5.Docker starts the container and executes /bin/bash. Because the container is running interactively and attached to your terminal (due to the -i and -t flags), we can provide input using our keyboard while the output is logged to our terminal.
+
+6.When we type exit to terminate the /bin/bash command, the container stops but is not removed. we can start it again or remove it.
+ 
+ ## Image Layers
+ 
+ 1. All changes made into the running containers be written into the writable layer.
+ 
+ 2. When the container is deleted, the writable layer is also deleted, but the underlying image remains unchanged.
+ 
+ 3. Multiple containers can share access to the same underlying image.
+ 
+ ## Bulid Docker Images 
+ 
+ # Ways to Build a Docker Image
+ 
+ Approach 1: committing changes made in a container
+ 
+ Approach 2: creating a docker file.
+ 
+ ## Approach 1: committing changes made in a container
+ 
+ #Steps 
+ 
+ 1.set up container from a base image.
+ 
+ 2.push all git packages in the container.
+ 
+ 3.commit changes made in the container.
+ 
+ ##Note : Docker Commit Command 
+ Docker commit command would save the changes we made to the docker's container file to a new image.
+ 
+ example docker commit conatiner_ID repository_name:tag
+ 
+ 
+ ## Approach 2: creating a docker file
+ 
+ #Dockerfile and instructions
+ 
+ 1. A dockerfile is a text document that contains all the instructions users provide to assemble an image.
+ 
+ 2. Each instruction will create a new image layer to the image
+ 
+ 3. Instructions specify what to do when building the image.
+ 
+ 
+ ## Docker Build Context
+ 
+ 1. Docker build command takes the path to the build context as an argument.
+ 
+ 2.When build starts, docker client would pack all the files in the build context into a tarball then transfer the tarball file to the daemon.
+ 
+ 3. By default , docker would search for the Dockerfile in the build context path.
+ 
+  ## Dockerfile In Depth
+  
+  # Chain RUN Instructions
+  
+  1.Each run command will execute the command on the top writable layer of the container, then commit the container as a new image.
+  
+  2.The new image is used for the next step in the Dockefile , So each run instruction will create a new image layer.
+  
+  3. It is recommended to chain the RUN instruction in the Dockerfile to reduce the number of image layers it creates.
+  
+  #Sort Multi-line Argument Alphanumerically
+  
+  --> This will help us to avoid duplication of packages and make the list much easier to update.
+  
+  ##CMD Instructions
+  1.CMD instructions specifies what command we want to run when the container start up.
+  
+  2.If we don't specify CMD instruction in the Dockerfile, Docker will use the default command defined in the base image.
+  
+  3.The CMD instruction doesn't run when building the image, it only runs when the container starts up.
+  
+  4.We can specify the command in either exec form which is preferred or in shell form.
+  
+  ##Docker Cache
+  
+  1.Each time Docker executes an instruction it builds a new image layer.
+  
+  2.The next time, if the instruction doesn't chane, Docker will simply reuse the existing layer.
+  
+  ##Copy Instruction 
+  -->
+  Copy instruction copies new files or directories from the build context and adds them to the file system of the container.
+  
+  ##ADD Instruction
+  1.ADD instruction can not only copy files but also allow us to download a file from the internate and copy to the container.
+  
+  2.ADD instruction also has the ability to automatically unpack compressed files.
+  
+  3.The rule is: use COPY for the sake of transparency, unless we are absolutely sure we need  ADD.
+  
+  ##Push Image to Docker Hub
+  
+  docker tag image_id  filename/image_name:1.01 using this command we can push the image to the hub
+  
+  #Latest Tag
+  
+  1. Docker will use latest as a default tag when no tag is provided.
+  
+  2. A lot of repositories use it to tag the most up-to-date stable image, However, this is still only a convention and is entirely not being enforced
+  
+  3.Images which are tagged latest will not be updated automatically when a newer version of the image is pushed to the repository.
+  
+  4.Avoid using latest tag.
+  
+  ## redis
+
+  1. In memory data structure store, used as database, cache and message broker
+
+  2. Built-in replication and different levels of non-persistence
+
+  3.Widely used in lots of critical products in the field such as twitter Timeline Service and Facebook News Feed.
+
+  ##Unit Tests in Containers
+
+  1. Unit tests should test some basic functionallity of our docker app code, with no reliance on external services.
+
+  2.Unit tests should run as quickly as possible so that developers can iterate much faster without being blocked by waiting for the tests results.
+
+  3.Docker containers can spin up in seconds and can create a clean and isolated environment which is great tool to run unit testst with.
+
+##Deploy to Swarm
+
+Now that we’ve demonstrated that the individual components of our application run as stand-alone containers and shown how to deploy it using Kubernetes, 
+let’s look at how to arrange for them to be managed by Docker Swarm.
+ Swarm provides many tools for scaling, networking, securing and maintaining your containerized applications, above and beyond the abilities of containers themselves.
+
+In order to validate that our containerized application works well on Swarm, we’ll use Docker Desktop’s built in Swarm environment right on our development machine to deploy our application, 
+before handing it off to run on a full Swarm cluster in production. 
+The Swarm environment created by Docker Desktop is fully featured, meaning it has all the Swarm features your app will enjoy on a real cluster, accessible from the convenience of your development machine.  
+  
+  
+ 
+ 
